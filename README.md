@@ -67,6 +67,6 @@ app/src/test/                        unit testy
 
 ## Písma a licence
 
-Písma [Audiowide](https://fonts.google.com/specimen/Audiowide) a [Chakra Petch](https://fonts.google.com/specimen/Chakra+Petch) jsou pod licencí SIL Open Font License 1.1, texty licencí jsou ve složce [`licenses`](licenses).
+Kód aplikace je pod licencí [MIT](LICENSE): smíš ho volně používat, upravovat i šířit, jen ponech upozornění o autorských právech. Bez záruky, používáš na vlastní riziko.
 
-Soukromý projekt, bez záruky. Používáš na vlastní riziko.
+Písma [Audiowide](https://fonts.google.com/specimen/Audiowide) a [Chakra Petch](https://fonts.google.com/specimen/Chakra+Petch) mají vlastní licenci SIL Open Font License 1.1, texty licencí jsou ve složce [`licenses`](licenses).
