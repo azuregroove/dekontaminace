@@ -16,11 +16,16 @@ Rozhraní je laděné jako palubní konzole hvězdné lodi: černé pozadí, bar
 | Modul | Co dělá |
 |---|---|
 | **01 Můstek** | Přehled: volné místo, rozdělení úložiště, hlášení ze všech modulů (poslední úklid, plné koše, zbytky po odinstalovaných aplikacích), aplikace s největší cache a největší žrouti místa. |
-| **02 Filtry** | Cache aplikací. Hromadné uvolnění cache všech aplikací (`pm trim-caches` přes Shizuku) a mazání vnější cache vybraných aplikací. |
+| **02 Filtry** | Cache aplikací: přehled podle velikosti a hromadné uvolnění cache všech aplikací (`pm trim-caches` přes Shizuku). Po jedné aplikaci Android shellu mazat cache nedovolí. |
 | **03 Sklad** | Soubory ve sdíleném úložišti: velké soubory, duplicity podle obsahu (SHA-256), staré screenshoty, nahrávky a stažené soubory, instalační APK, prázdné složky. Mazání přes vlastní koš. |
 | **04 Náklad** | `Android/data` a `Android/obb` přes Shizuku: velikost složek po aplikacích, zbytky po odinstalovaných aplikacích, procházení stromem složek, přesun do koše s obnovou. |
 | **05 Rozkazy** | Plánovaný úklid na pozadí (WorkManager): hromadná cache denně nebo týdně, se souhrnem v oznámení. |
 | **06 Deník** | Historie všech akcí za 90 dní s grafem po dnech (7, 30, 90 dní). |
+
+## Historie verzí
+
+- **1.1**: release sestavení s vlastním podpisem a optimalizací R8 (APK zhruba 2,5 MB místo 31 MB), smyšlené palubní údaje seskupené podle oddělení, z Filtrů odebráno mazání vnější cache po jedné (na telefonu prakticky žádná nebyla).
+- **1.0**: první verze (ladicí sestavení).
 
 ## Bezpečnost
 
@@ -37,16 +42,19 @@ Rozhraní je laděné jako palubní konzole hvězdné lodi: černé pozadí, bar
 3. Nainstaluj a spusť [Shizuku](https://shizuku.rikka.app/) (přes bezdrátové ladění; po restartu telefonu je potřeba ho spustit znovu).
 4. V Dekontaminaci povol přístup k Shizuku. Ostatní oprávnění (údaje o využití, přístup ke všem souborům) jde udělit přímo z aplikace.
 
-Požadavky: Android 11 (API 30) nebo novější, Shizuku 13 nebo novější. Aktuální APK je ladicí sestavení podepsané ladicím klíčem.
+Požadavky: Android 11 (API 30) nebo novější, Shizuku 13 nebo novější. Od verze 1.1 je APK release sestavení podepsané vlastním klíčem. Kdo má nainstalovanou ladicí verzi 1.0, musí ji nejdřív odinstalovat (jiný podpis), přijde tím o deník, nastavení rozkazů a koš nákladu.
 
 ## Sestavení ze zdrojáků
 
 Potřeba je Android Studio (testováno s AGP 9.4, Kotlin 2.2, Compose BOM 2026.02).
 
 ```powershell
-.\gradlew installDebug   # sestaví a nainstaluje do připojeného telefonu
+.\gradlew installDebug   # ladicí verze do připojeného telefonu
+.\gradlew assembleRelease # release (R8), podepíše se, když existuje keystore.properties
 .\gradlew test           # unit testy (JUnit 4)
 ```
+
+Podepisování release: v kořeni projektu soubor `keystore.properties` (je v `.gitignore`) s klíči `storeFile`, `storePassword`, `keyAlias`, `keyPassword`. Bez něj se release sestaví nepodepsaný.
 
 Cesta k projektu nesmí obsahovat diakritiku, jinak selže kompilace AIDL.
 

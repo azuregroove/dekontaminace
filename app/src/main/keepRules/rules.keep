@@ -12,3 +12,11 @@
 #}
 # Shizuku vytváří službu reflexí podle názvu třídy.
 -keep class cz.radek.dekontaminace.shizuku.ShellService { <init>(...); }
+
+# Názvy enumů se ukládají do souborů a nastavení (deník, rozkazy, poslední modul) a čtou přes valueOf.
+# Přejmenované by po aktualizaci nešly přečíst.
+-keepclassmembers enum cz.radek.dekontaminace.** {
+    <fields>;
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

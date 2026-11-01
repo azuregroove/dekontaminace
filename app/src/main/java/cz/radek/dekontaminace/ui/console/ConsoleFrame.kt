@@ -375,7 +375,7 @@ private fun SideButton(section: Section, selected: Boolean, index: Int, onClick:
  * Pořadí je zároveň priorita: co se do bočnice nevejde, vypadne odspodu.
  */
 @Composable
-private fun rememberShipStatus(alert: Boolean): List<Pair<String, String>> {
+private fun rememberShipStatus(alert: Boolean): List<Pair<String, List<Pair<String, String>>>> {
     var shields by remember { mutableIntStateOf(100) }
     var dilithium by remember { mutableIntStateOf(87) }
     var warp by remember { mutableIntStateOf(2140) }
@@ -416,26 +416,39 @@ private fun rememberShipStatus(alert: Boolean): List<Pair<String, String>> {
         }
     }
     val sweep = listOf("SKENUJÍ", "SEKTOR 1", "SEKTOR 2", "SEKTOR 3")[sensor]
+    // Skupiny podle palubních oddělení; pořadí skupin je zároveň priorita, co se nevejde, vypadne celé.
     return listOf(
-        "ŠTÍTY" to if (alert) "OFFLINE" else "$shields %",
-        "DILITHIUM" to "$dilithium %",
-        "WARP JÁDRO" to "$warp K",
-        "DEFLEKTOR" to if (alert) "VÝPADEK" else "AKTIVNÍ",
-        "DATUM" to formatStardate(stardate()),
-        "RYCHLOST" to if (alert) "IMPULZ" else "WARP ${speed / 10},${speed % 10}",
-        "KURZ" to "${heading.toString().padStart(3, '0')} MARK $mark",
-        "TRUP" to "$hull %",
-        "SENZORY" to sweep,
-        "TRANSPORTÉR" to if (alert) "ZAMČENO" else listOf("PŘIPRAVEN", "NABÍJÍ", "PŘIPRAVEN")[transporter],
-        "ATMOSFÉRA" to "OK",
-        "POSÁDKA" to listOf("VE SLUŽBĚ", "VOLNO", "VE SLUŽBĚ")[crew],
-        "ANTIHMOTA" to "$antimatter %",
-        "GRAVITACE" to "${gravity / 100},${(gravity % 100).toString().padStart(2, '0')} G",
-        "KOMUNIKACE" to if (alert) "RUŠENÍ" else "KANÁL $channel",
-        "REPLIKÁTOR" to listOf("PŘIPRAVEN", "EARL GREY", "PŘIPRAVEN", "KÁVA")[replicator],
-        "HOLOPALUBA" to if (holodeck == 0) "VOLNÁ" else "OBSAZENO",
-        "TEPLOTA" to "${temperature / 10},${temperature % 10} °C",
-        "LODNÍ ČAS" to clock,
+        "ČAS" to listOf(
+            "HV. DATUM" to formatStardate(stardate()),
+            "LODNÍ ČAS" to clock,
+        ),
+        "OBRANA" to listOf(
+            "ŠTÍTY" to if (alert) "OFFLINE" else "$shields %",
+            "DEFLEKTOR" to if (alert) "VÝPADEK" else "AKTIVNÍ",
+            "TRUP" to "$hull %",
+        ),
+        "POHON" to listOf(
+            "WARP JÁDRO" to "$warp K",
+            "ANTIHMOTA" to "$antimatter %",
+            "DILITHIUM" to "$dilithium %",
+            "RYCHLOST" to if (alert) "IMPULZ" else "WARP ${speed / 10},${speed % 10}",
+            "KURZ" to "${heading.toString().padStart(3, '0')} MARK $mark",
+        ),
+        "SYSTÉMY" to listOf(
+            "SENZORY" to sweep,
+            "KOMUNIKACE" to if (alert) "RUŠENÍ" else "KANÁL $channel",
+            "TRANSPORTÉR" to if (alert) "ZAMČENO" else listOf("PŘIPRAVEN", "NABÍJÍ", "PŘIPRAVEN")[transporter],
+        ),
+        "PROSTŘEDÍ" to listOf(
+            "ATMOSFÉRA" to "OK",
+            "GRAVITACE" to "${gravity / 100},${(gravity % 100).toString().padStart(2, '0')} G",
+            "TEPLOTA" to "${temperature / 10},${temperature % 10} °C",
+        ),
+        "POSÁDKA" to listOf(
+            "POSÁDKA" to listOf("VE SLUŽBĚ", "VOLNO", "VE SLUŽBĚ")[crew],
+            "REPLIKÁTOR" to listOf("PŘIPRAVEN", "EARL GREY", "PŘIPRAVEN", "KÁVA")[replicator],
+            "HOLOPALUBA" to if (holodeck == 0) "VOLNÁ" else "OBSAZENO",
+        ),
     )
 }
 
@@ -516,7 +529,7 @@ private fun SideFiller(alert: Boolean, modifier: Modifier) {
             .padding(start = 8.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
         contentAlignment = Alignment.TopEnd,
     ) {
-        FitColumn(spacing = 5.dp) {
+        FitColumn(spacing = 10.dp) {
             if (alert) {
                 Text(
                     "VÝSTRAHA",
@@ -524,8 +537,15 @@ private fun SideFiller(alert: Boolean, modifier: Modifier) {
                     color = Console.Rose.copy(alpha = blink),
                 )
             }
-            ship.forEach { (label, value) ->
-                Readout(label, value, if (alert && value in setOf("OFFLINE", "VÝPADEK", "IMPULZ", "ZAMČENO", "RUŠENÍ")) Console.Rose else Console.Lilac)
+            ship.forEach { (group, readouts) ->
+                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    // Hlavička oddělení: název a linka přes celou šířku skupiny.
+                    Text(group, style = consoleText(8f), color = accent.copy(alpha = 0.95f), maxLines = 1)
+                    Box(Modifier.fillMaxWidth().height(1.dp).background(accent.copy(alpha = 0.45f)))
+                    readouts.forEach { (label, value) ->
+                        Readout(label, value, if (alert && value in setOf("OFFLINE", "VÝPADEK", "IMPULZ", "ZAMČENO", "RUŠENÍ")) Console.Rose else Console.Lilac)
+                    }
+                }
             }
         }
     }
